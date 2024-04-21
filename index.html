@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missionaries & Cannibals Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        #display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .side {
+            font-size: 30px;
+            padding: 0 10px;
+        }
+        #boat {
+            font-size: 50px;
+            padding: 0 20px;
+        }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .counts {
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            font-size: 20px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .button-group {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Start</h1>
+        <p>Now the task is to move all of them to the right side of the river</p>
+        <p>Rules:</p>
+        <ol>
+            <li>The boat can carry at most two people</li>
+            <li>If cannibals number is greater than missionaries, the cannibals would eat the missionaries</li>
+            <li>The boat cannot cross the river by itself with no people on board</li>
+        </ol>
+        <hr>
+        <div id="display">
+            <div class="side" id="left-side">👼 👼 👼 👹 👹 👹</div>
+            <div id="boat">_⛵____</div>
+            <div class="side" id="right-side"></div>
+        </div>
+        <div id="controls">
+            <div class="counts">
+                <div class="button-group">
+                    <p>Missionaries: <span id="missionary-count">0</span></p>
+                    <button id="add-missionary">+</button>
+                    <button id="remove-missionary">-</button>
+                </div>
+                <div class="button-group">
+                    <p>Cannibals: <span id="cannibal-count">0</span></p>
+                    <button id="add-cannibal">+</button>
+                    <button id="remove-cannibal">-</button>
+                </div>
+            </div>
+            <div class="buttons">
+                <button id="move-right-to-left" data-direction="left" disabled>←</button>
+                <button id="move-left-to-right" data-direction="right" disabled>→</button>
+            </div>
+            <button id="reset-game">Reset Game</button>
+            <p id="game-status"></p>
+        </div>
+    </div>
+
+    <script>
+        let lM = 3, lC = 3, rM = 0, rC = 0, k = 0;
+        let missionaryCount = 0, cannibalCount = 0;
+
+        // Function to update the display
+        function updateDisplay() {
+            document.getElementById('left-side').innerText = '👼 '.repeat(lM) + '👹 '.repeat(lC);
+            document.getElementById('right-side').innerText = '👼 '.repeat(rM) + '👹 '.repeat(rC);
+            document.getElementById('missionary-count').innerText = missionaryCount;
+            document.getElementById('cannibal-count').innerText = cannibalCount;
+            document.getElementById('game-status').innerText = '';
+            updateButtonState();
+        }
+
+        // Function to update the button state based on game logic
+        function updateButtonState() {
+            let leftButton = document.querySelector('button[data-direction="left"]');
+            let rightButton = document.querySelector('button[data-direction="right"]');
+            let boatCapacity = 2;
+            let boatPassengers = missionaryCount + cannibalCount;
+
+            if (boatPassengers >= 1 && boatPassengers <= boatCapacity) {
+                leftButton.disabled = false;
+                rightButton.disabled = false;
+            } else {
+                leftButton.disabled = true;
+                rightButton.disabled = true;
+            }
+        }
+
+        // Add event listeners to buttons
+        document.getElementById('add-missionary').addEventListener('click', () => {
+            if ((missionaryCount + cannibalCount) < 2) {
+                missionaryCount++;
+                updateDisplay();
+            } else {
+                alert("Cannot add more missionaries. Total must not exceed 2.");
+            }
+        });
+
+        document.getElementById('remove-missionary').addEventListener('click', () => {
+            if (missionaryCount > 0) {
+                missionaryCount--;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById('add-cannibal').addEventListener('click', () => {
+            if ((missionaryCount + cannibalCount) < 2) {
+                cannibalCount++;
+                updateDisplay();
+            } else {
+                alert("Cannot add more cannibals. Total must not exceed 2.");
+            }
+        });
+
+        document.getElementById('remove-cannibal').addEventListener('click', () => {
+            if (cannibalCount > 0) {
+                cannibalCount--;
+                updateDisplay();
+            }
+        });
+
+        document.getElementById('move-left-to-right').addEventListener('click', () => {
+            if ((missionaryCount + cannibalCount) >= 1 && (missionaryCount + cannibalCount) <= 2 && (lM - missionaryCount) >= 0 && (lC - cannibalCount) >= 0) {
+                lM -= missionaryCount;
+                lC -= cannibalCount;
+                rM += missionaryCount;
+                rC += cannibalCount;
+                document.getElementById('boat').innerText = "____⛵_";
+                updateDisplay();
+                disableButtons('left', true);
+                disableButtons('right', false);
+                k++;
+
+                if ((lC == 3 && lM == 1) || (lC == 3 && lM == 2) || (lC == 2 && lM == 1) ||
+                    (rC == 3 && rM == 1) || (rC == 3 && rM == 2) || (rC == 2 && rM == 1)) {
+                    document.getElementById('game-status').innerText = "Cannibals eat missionaries. You lost the game!";
+                    setTimeout(resetGame, 3000);
+                }
+
+                if ((rM + rC) === 6) {
+                    document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
+                    setTimeout(resetGame, 3000);
+                }
+            } else {
+                alert("Invalid Input. Please re-enter.");
+            }
+        });
+
+        document.getElementById('move-right-to-left').addEventListener('click', () => {
+            if ((missionaryCount + cannibalCount) >= 1 && (missionaryCount + cannibalCount) <= 2 && (rM - missionaryCount) >= 0 && (rC - cannibalCount) >= 0) {
+                lM += missionaryCount;
+                lC += cannibalCount;
+                rM -= missionaryCount;
+                rC -= cannibalCount;
+                document.getElementById('boat').innerText = "_⛵____";
+                updateDisplay();
+                disableButtons('right', true);
+                disableButtons('left', false);
+                k++;
+
+                if ((lC == 3 && lM == 1) || (lC == 3 && lM == 2) || (lC == 2 && lM == 1) ||
+                    (rC == 3 && rM == 1) || (rC == 3 && rM == 2) || (rC == 2 && rM == 1)) {
+                    document.getElementById('game-status').innerText = "Cannibals eat missionaries. You lost the game!";
+                    setTimeout(resetGame, 3000);
+                }
+
+                if ((rM + rC) === 6) {
+                    document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
+                    setTimeout(resetGame, 3000);
+                }
+            } else {
+                alert("Invalid Input. Please re-enter.");
+            }
+        });
+
+        document.getElementById('reset-game').addEventListener('click', resetGame);
+
+        // Function to reset the game
+        function resetGame() {
+            lM = 3;
+            lC = 3;
+            rM = 0;
+            rC = 0;
+            k = 0;
+            missionaryCount = 0;
+            cannibalCount = 0;
+            document.getElementById('boat').innerText = "_⛵____";
+            updateDisplay();
+            disableButtons('left', false);
+            disableButtons('right', true);
+            document.getElementById('game-status').innerText = '';
+        }
+
+        // Function to disable/enable buttons
+        function disableButtons(side, disable) {
+            let leftButton = document.getElementById('move-left-to-right');
+            let rightButton = document.getElementById('move-right-to-left');
+
+            if (side === 'left') {
+                leftButton.disabled = disable;
+                rightButton.disabled = !disable;
+            } else {
+                rightButton.disabled = disable;
+                leftButton.disabled = !disable;
+            }
+        }
+
+        // Initial display update
+        updateDisplay();
+    </script>
+</body>
+</html>
