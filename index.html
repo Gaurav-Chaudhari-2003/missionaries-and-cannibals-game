@@ -92,12 +92,14 @@
             </div>
             <button id="reset-game">Reset Game</button>
             <p id="game-status"></p>
+            <p id="best-score">Best Score: <span id="best-score-count">-</span></p>
         </div>
     </div>
 
     <script>
         let lM = 3, lC = 3, rM = 0, rC = 0, k = 0;
         let missionaryCount = 0, cannibalCount = 0;
+        let bestScore = localStorage.getItem('bestScore') ? parseInt(localStorage.getItem('bestScore')) : Infinity;
 
         // Function to update the display
         function updateDisplay() {
@@ -106,6 +108,7 @@
             document.getElementById('missionary-count').innerText = missionaryCount;
             document.getElementById('cannibal-count').innerText = cannibalCount;
             document.getElementById('game-status').innerText = '';
+            document.getElementById('best-score-count').innerText = bestScore === Infinity ? '-' : bestScore;
             updateButtonState();
         }
 
@@ -177,6 +180,11 @@
                 }
 
                 if ((rM + rC) === 6) {
+                    if (k < bestScore) {
+                        bestScore = k;
+                        localStorage.setItem('bestScore', bestScore);
+                        document.getElementById('best-score-count').innerText = bestScore;
+                    }
                     document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
                     setTimeout(resetGame, 3000);
                 }
@@ -204,7 +212,13 @@
                 }
 
                 if ((rM + rC) === 6) {
+                    if (k < bestScore) {
+                        bestScore = k;
+                        localStorage.setItem('bestScore', bestScore);
+                        document.getElementById('best-score-count').innerText = bestScore;
+                    }
                     document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
+                    alert("You won the game in ${k} attempts! Congrats!");
                     setTimeout(resetGame, 3000);
                 }
             } else {
