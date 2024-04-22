@@ -176,6 +176,7 @@
                 if ((lC == 3 && lM == 1) || (lC == 3 && lM == 2) || (lC == 2 && lM == 1) ||
                     (rC == 3 && rM == 1) || (rC == 3 && rM == 2) || (rC == 2 && rM == 1)) {
                     document.getElementById('game-status').innerText = "Cannibals eat missionaries. You lost the game!";
+                    alert("Cannibals eat missionaries. You lost the game!");
                     setTimeout(resetGame, 3000);
                 }
 
@@ -184,6 +185,9 @@
                         bestScore = k;
                         localStorage.setItem('bestScore', bestScore);
                         document.getElementById('best-score-count').innerText = bestScore;
+                        alert(`You won the game in ${k} attempts! Congrats You earn new Best score!`);
+                    } else {
+                        alert(`You won the game in ${k} attempts! Best score: ${bestScore}`);
                     }
                     document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
                     setTimeout(resetGame, 3000);
@@ -208,6 +212,7 @@
                 if ((lC == 3 && lM == 1) || (lC == 3 && lM == 2) || (lC == 2 && lM == 1) ||
                     (rC == 3 && rM == 1) || (rC == 3 && rM == 2) || (rC == 2 && rM == 1)) {
                     document.getElementById('game-status').innerText = "Cannibals eat missionaries. You lost the game!";
+                    alert("Cannibals eat missionaries. You lost the game!");
                     setTimeout(resetGame, 3000);
                 }
 
@@ -218,7 +223,7 @@
                         document.getElementById('best-score-count').innerText = bestScore;
                     }
                     document.getElementById('game-status').innerText = `You won the game in ${k} attempts! Congrats!`;
-                    alert("You won the game in ${k} attempts! Congrats!");
+                    alert(`You won the game in ${k} attempts! Congrats!`);
                     setTimeout(resetGame, 3000);
                 }
             } else {
